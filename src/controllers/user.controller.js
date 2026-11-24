@@ -136,7 +136,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "username or email is required");
   }
 
-  // Here is an alternative of above code based on logic discussed in video:
+  // Here is an alternative of above code based on logic discussed:
   // if (!(username || email)) {
   //     throw new ApiError(400, "username or email is required")
 
@@ -164,9 +164,13 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
+  if (!loggedInUser) {
+    throw new ApiError(500, "Something went wrong while logging in the user");
+  }
+
   const options = {
-    httpOnly: true,
-    secure: true,
+    httpOnly: true, //This makes the cookie non modifiable by the client side.I just can only modify this.
+    secure: process.env.NODE_ENV === "production", // process.env.NODE_ENV === "production", //This makes the cookie only sent over HTTPS. This is important for security, especially in production environments.
   };
 
   return res
@@ -201,7 +205,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
   };
 
   return res
@@ -237,7 +241,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const options = {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
     };
 
     const { accessToken, newRefreshToken } =
